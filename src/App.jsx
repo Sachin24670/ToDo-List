@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar";
 import "./App.css";
 import { v4 as uuidv4 } from 'uuid';
@@ -8,7 +8,28 @@ function App() {
   const [todo, setTodo] = useState("");
   const [todos, setTodos] = useState([]);
 
-  const handleEdit = () => {};
+  useEffect(() => {
+    let todoString = localStorage.getItem("todos")
+    if(todoString){
+      let todos = JSON.parse(localStorage.getItem("todos"))
+      setTodos(todos)
+    }
+   
+  }, [])
+  
+
+  const SavetoLocalStorage =(param) => { localStorage.setItem("todos",JSON.stringify(todos)) }
+
+  const handleEdit = (e,id) => {
+    let t = todos.filter(item=>item.id===id)
+    setTodo(t[0].todo)
+     let newTodos = todos.filter((item) => {
+       return item.id !== id;
+     });
+
+     setTodos(newTodos);
+     SavetoLocalStorage();
+  };
 
   const handleDelete = (e,id) => {
     let newTodos = todos.filter(item=>{
@@ -16,6 +37,7 @@ function App() {
     })
 
     setTodos(newTodos)
+    SavetoLocalStorage();
 
   };
 
@@ -23,6 +45,7 @@ function App() {
     setTodos([...todos , {id:uuidv4() ,todo, isCompleted: false}])
     console.log(todos);
     setTodo("")
+    SavetoLocalStorage()
 
   };
 
@@ -39,6 +62,8 @@ function App() {
     let newTodos = [...todos];
     newTodos[index].isCompleted = !newTodos[index].isCompleted;
     setTodos(newTodos)
+
+    SavetoLocalStorage()
 
   }
 
@@ -68,9 +93,9 @@ function App() {
                 </div>
             </div>
 
-            <div className="buttons flex">
+            <div className="buttons flex h-full">
               <button
-                onClick={handleEdit}
+                onClick={(e)=>handleEdit(e,item.id)}
                 className="bg-violet-600 hover:bg-violet-800 p-3 py-1 rounded-md text-white mx-2"
                 >
                 edit
